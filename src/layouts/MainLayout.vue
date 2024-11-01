@@ -1,23 +1,23 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+<!--    <q-header>-->
+<!--      <q-toolbar>-->
+<!--        <q-btn-->
+<!--          flat-->
+<!--          dense-->
+<!--          round-->
+<!--          icon="menu"-->
+<!--          aria-label="Menu"-->
+<!--          @click="toggleLeftDrawer"-->
+<!--        />-->
 
-        <q-toolbar-title>
-          Todonary - App
-        </q-toolbar-title>
+<!--        <q-toolbar-title>-->
+<!--          Todonary - App-->
+<!--        </q-toolbar-title>-->
 
-        <div></div>
-      </q-toolbar>
-    </q-header>
+<!--        <div></div>-->
+<!--      </q-toolbar>-->
+<!--    </q-header>-->
 
     <q-drawer
       v-model="leftDrawerOpen"
