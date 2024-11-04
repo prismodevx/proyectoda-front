@@ -10,6 +10,7 @@
 
 
 const { configure } = require('quasar/wrappers');
+const path = require('path');
 
 
 module.exports = configure(function (/* ctx */) {
@@ -67,7 +68,7 @@ module.exports = configure(function (/* ctx */) {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      // publicPath: '/',
+      publicPath: '/',
       // analyze: true,
       // env: {},
       // rawDefine: {}
@@ -83,6 +84,14 @@ module.exports = configure(function (/* ctx */) {
       // vitePlugins: [
       //   [ 'package-name', { ..options.. } ]
       // ]
+      alias: {
+        '@': path.join(__dirname, './src'),
+        '@components': path.join(__dirname, './src/components'),
+        '@composable': path.join(__dirname, './src/composable'),
+        '@stores': path.join(__dirname, './src/stores'),
+        '@assets': path.join(__dirname, './src/assets'),
+        '@css': path.join(__dirname, './src/css'),
+      },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
@@ -106,7 +115,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: ['Dialog']
     },
 
     // animations: 'all', // --- includes all animations

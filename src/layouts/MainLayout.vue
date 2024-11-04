@@ -39,7 +39,7 @@
       </q-list>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container style="background-color: #f4f4f6">
       <q-page style="padding: 48px;">
         <router-view style="margin: 0;"/>
       </q-page>
