@@ -282,7 +282,7 @@ const save = async () => {
     let response: any;
 
     if(tarea.value.id == 0) {
-      response = await axios.post(URL + 'tareas', data);
+      response = await axios.post(URL + 'tareas/', data);
     }
     else {
       response = await axios.put(URL + 'tareas/' + tarea.value.id, data);
@@ -324,7 +324,6 @@ const edit = async (item: any) => {
   try {
     const response = await axios.get(URL + 'tareas/' + item.id);
     tarea.value = { ...response.data.body };
-    console.log(response.data);
     openDialog();
   } catch (e: any) {
     alert({
