@@ -1,8 +1,31 @@
 <template>
   <q-page>
     <div class="row align-items-center justify-between q-mb-md">
-      <div class="text-h5 text-weight-bold text-grey-9">Tareas</div>
+      <div class="text-h5 text-weight-bold text-grey-9">Tareas<span class="q-ml-sm text-weight-regular text-grey-5">{{ rows.length }}</span></div>
       <div style="display: flex; gap: 20px">
+        <q-select
+          hide-dropdown-icon
+          dense
+          borderless
+          style="background-color: white; width: 160px; border: 1px solid #D1D5DB; border-radius: 6px"
+          v-model="modelSelect"
+          placeholder="seleccionar..."
+          :options="options"
+        >
+          <template v-slot:selected-item="{ opt }">
+            <div class="q-pl-md truncate-text">{{ opt.label }}</div>
+          </template>
+          <template v-slot:append>
+            <q-icon class="q-pr-sm" name="expand_more" style="color: grey;" />
+          </template>
+          <template v-slot:option="scope">
+            <q-item v-bind="scope.itemProps" style="min-height: 36px">
+              <q-item-section>
+                <q-item-label>{{ scope.opt.label }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
         <Button
           :label="'Exportar'"
           :icon="'system_update_alt'"
@@ -28,7 +51,7 @@
       @action-context-menu="handleContextMenu"
     />
     <q-dialog v-model="dialog" persistent>
-      <q-card style="width: 500px; max-width: 90vw; border-radius: 6px">
+      <q-card class="q-py-sm" style="width: 500px; max-width: 90vw; border-radius: 6px">
         <q-card-section class="q-px-lg q-py-sm flex-center row justify-between">
           <div class="text-weight-bold text-h6 text-grey-9">
             Nueva tarea
@@ -46,8 +69,9 @@
           <q-form greedy ref="refForm">
             <div class="row q-col-gutter-y-md q-col-gutter-x-md">
               <div class="col-12">
-                <div class="text-grey-7 q-mb-xs">Titulo</div>
+                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Titulo</div>
                 <q-input
+                  placeholder="Ingresa un titulo..."
                   outlined
                   v-model="tarea.titulo"
                   dense
@@ -61,31 +85,31 @@
                 />
               </div>
               <div class="col-12">
-                <div class="text-grey-7 q-mb-xs">Descripcion</div>
+                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Descripcion</div>
                 <q-input
+                  placeholder="Escribe una descripcion..."
                   outlined
                   v-model="tarea.descripcion"
                   dense
-
                   type="textarea"
                 />
               </div>
               <div class="col-6">
-                <div class="text-grey-7 q-mb-xs">Fecha Inicio</div>
+                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Fecha Inicio</div>
                 <InputDate
                   v-model="tarea.fechaInicio"
                   placeholder="dd/MM/aaaa"
                 />
               </div>
               <div class="col-6">
-                <div class="text-grey-7 q-mb-xs">Fecha Fin</div>
+                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Fecha Fin</div>
                 <InputDate
                   v-model="tarea.fechaFin"
                   placeholder="dd/MM/aaaa"
                 />
               </div>
               <div class="col-12">
-                <div class="text-grey-7 q-mb-xs">Deadline</div>
+                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Deadline</div>
                 <InputDate
                   v-model="tarea.fechaLimite"
                   placeholder="dd/MM/aaaa"
@@ -113,33 +137,7 @@
           </div>
         </q-card-section>
       </q-card>
-
     </q-dialog>
-<!--    <q-dialog persistent :model-value="true">-->
-<!--      <q-card style="width: 400px; border-radius: 6px">-->
-<!--        <q-card-section class="q-pa-none flex justify-end q-ma-sm">-->
-<!--          <Button-->
-<!--            :icon="'close'"-->
-<!--            :color="'white'"-->
-<!--            :text-color="'black'"-->
-<!--            round-->
-<!--            size="md"-->
-<!--          />-->
-<!--        </q-card-section>-->
-<!--        <q-card-section class="q-pt-none" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">-->
-<!--          <img src="../../../assets/success.svg" alt="" style="width: 120px">-->
-<!--          <div class="text-h6 text-weight-bold text-grey-9">Listo!</div>-->
-<!--          <div class="text-weight-medium text-grey-6">El registro se ha creado satisfactoriamente.</div>-->
-<!--        </q-card-section>-->
-<!--        <q-card-section class="q-pt-none q-my-sm" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">-->
-<!--          <Button-->
-<!--            :label="'Continuar'"-->
-<!--            :color="'positive'"-->
-<!--            :text-color="'white'"-->
-<!--          />-->
-<!--        </q-card-section>-->
-<!--      </q-card>-->
-<!--    </q-dialog>-->
   </q-page>
 </template>
 
@@ -150,14 +148,34 @@ import Table from '../../../components/MyTable.vue'
 import Button from '../../../components/MyButton.vue'
 import InputDate from '../../../components/MyInputDate.vue'
 import { Tarea } from '../interface/Tarea'
-import { useAlert } from '../../../composables/useAlert';
+import { useAlert } from 'src/composables/useAlert';
+import useFetchHttp from '../../../composables/useFetchHttp'
 
 const { alert } = useAlert();
+
+const { fetchHttp } = useFetchHttp();
 /****************************************************************************/
 /*                              DATA                                        */
 /****************************************************************************/
+const options = [
+  {
+    value: 1,
+    label: 'Categoriadawdawd'
+  },
+  {
+    value: 2,
+    label: 'Categoria 2'
+  },
+  {
+    value: 3,
+    label: 'Categoria 3'
+  }
+];
 
-const URL = 'http://localhost:8090/api/v1/';
+const modelSelect = ref(null);
+
+
+const URL = 'http://localhost:8090/api/v1';
 
 const rows = ref([]);
 const columns = ref([
@@ -259,8 +277,11 @@ const handleContextMenu = async ({ action, row }) => {
 /****************************************************************************/
 const listTareas = async () => {
   try {
-    const response = await axios.get(URL + 'tareas');
-
+    const response: any = await fetchHttp({
+      method: 'GET',
+      endpoint: '/tareas',
+      data: {}
+    });
     rows.value = response.data.body;
   } catch (e) {
     console.log('error: ', e);
@@ -282,10 +303,10 @@ const save = async () => {
     let response: any;
 
     if(tarea.value.id == 0) {
-      response = await axios.post(URL + 'tareas/', data);
+      response = await axios.post(URL + '/tareas', data);
     }
     else {
-      response = await axios.put(URL + 'tareas/' + tarea.value.id, data);
+      response = await axios.put(URL + '/tareas/' + tarea.value.id, data);
     }
 
     if(response.data.ok) {
@@ -322,7 +343,7 @@ const validateSave = async () => {
 
 const edit = async (item: any) => {
   try {
-    const response = await axios.get(URL + 'tareas/' + item.id);
+    const response = await axios.get(URL + '/tareas/' + item.id);
     tarea.value = { ...response.data.body };
     openDialog();
   } catch (e: any) {
@@ -356,6 +377,19 @@ onMounted(async () => {
 
 </script>
 
-<style scoped>
+<style>
+.q-field--auto-height.q-field--dense .q-field__control, .q-field--auto-height.q-field--dense .q-field__native {
+  min-height: 36px !important;
+}
+
+.q-field--auto-height .q-field__control {
+  height: 36px !important;
+}
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
 
 </style>

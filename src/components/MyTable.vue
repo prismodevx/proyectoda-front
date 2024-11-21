@@ -25,18 +25,6 @@
             </q-item-section>
             <q-item-section class="text-weight-medium text-grey-8">{{ option.text }}</q-item-section>
           </q-item>
-<!--          <q-item clickable v-close-popup @click="() => console.log('clicked', props.value)">-->
-<!--            <q-item-section side>-->
-<!--              <q-icon name="edit" color="primary" size="xs" />-->
-<!--            </q-item-section>-->
-<!--            <q-item-section class="text-weight-medium text-grey-8">Editar</q-item-section>-->
-<!--          </q-item>-->
-<!--          <q-item clickable v-close-popup>-->
-<!--            <q-item-section side>-->
-<!--              <q-icon name="delete" color="negative" size="xs" />-->
-<!--            </q-item-section>-->
-<!--            <q-item-section class="text-weight-medium text-red-9">Eliminar</q-item-section>-->
-<!--          </q-item>-->
         </q-list>
       </q-menu>
     </template>
