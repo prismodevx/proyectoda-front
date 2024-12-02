@@ -14,6 +14,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/tareas/views/List.vue')
       },
     ],
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/login',
+    component: () => import('pages/login/views/Form.vue')
   },
 
   // Always leave this as last one,

@@ -149,7 +149,8 @@ import Button from '../../../components/MyButton.vue'
 import InputDate from '../../../components/MyInputDate.vue'
 import { Tarea } from '../interface/Tarea'
 import { useAlert } from 'src/composables/useAlert';
-import useFetchHttp from '../../../composables/useFetchHttp'
+import useFetchHttp from '../../../composables/useFetchHttp';
+import { jwtDecode } from 'jwt-decode';
 
 const { alert } = useAlert();
 
@@ -277,16 +278,30 @@ const handleContextMenu = async ({ action, row }) => {
 /****************************************************************************/
 const listTareas = async () => {
   try {
-    const response: any = await fetchHttp({
-      method: 'GET',
-      endpoint: '/tareas',
-      data: {}
-    });
-    rows.value = response.data.body;
-  } catch (e) {
-    console.log('error: ', e);
-  } finally {
+    const token = localStorage.getItem('token'); // Recupera el token
+    if (!token) {
+      throw new Error("Token no encontrado en localStorage.");
+    }
 
+    const decodedToken = jwtDecode(token);
+    const userSub = decodedToken.sub;
+
+    console.log(userSub)
+    console.log(token)
+
+    const response = await axios.get('http://localhost:8090/api/v1/tareas', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    rows.value = response.data.body;
+  } catch (error) {
+    if (error.response) {
+      console.error("Error del servidor:", error.response.data);
+    } else {
+      console.error("Error en la solicitud:", error.message);
+    }
   }
 };
 
@@ -302,8 +317,14 @@ const save = async () => {
     }
     let response: any;
 
+    const token = localStorage.getItem('token');
+
     if(tarea.value.id == 0) {
-      response = await axios.post(URL + '/tareas', data);
+      response = await axios.post('http://localhost:8090/api/v1/tareas', data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
     }
     else {
       response = await axios.put(URL + '/tareas/' + tarea.value.id, data);
@@ -371,8 +392,8 @@ const closeDialog = () => {
 /****************************************************************************/
 /*                           LIFECYCLE                                      */
 /****************************************************************************/
-onMounted(async () => {
-  await listTareas();
+onMounted( () => {
+  listTareas();
 });
 
 </script>
