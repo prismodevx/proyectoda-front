@@ -42,6 +42,7 @@ import { ref } from 'vue';
 import { Dialog, Loading, useQuasar } from 'quasar';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import jwtDecode from 'jwt-decode';
 
 const router = useRouter();
 
@@ -53,7 +54,7 @@ const login = async () => {
     Loading.show();
 
     const data = {
-      email: email.value,
+      usuario: email.value,
       password: password.value
     }
 
