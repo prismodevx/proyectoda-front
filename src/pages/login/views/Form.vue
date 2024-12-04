@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Dialog, Loading, useQuasar } from 'quasar';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
@@ -71,6 +71,10 @@ const login = async () => {
     Loading.hide();
   }
 };
+
+onMounted(() => {
+  localStorage.removeItem('token');
+})
 </script>
 
 <style scoped>

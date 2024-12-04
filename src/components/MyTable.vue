@@ -7,27 +7,41 @@
     bordered
     style="border-radius: 6px"
   >
-    <template v-slot:body-cell="props">
-      <q-td :props="props">
-        {{ props.value }}
-      </q-td>
-      <q-menu touch-position context-menu>
-        <q-list dense style="width: 140px">
-          <q-item
-            v-for="option in contextMenu"
-            :key="option.text"
-            clickable
-            v-close-popup
-            @click="emitAction(option.func, props.row)"
-          >
-            <q-item-section side>
-              <q-icon :name="option.icon" color="primary" size="xs" />
-            </q-item-section>
-            <q-item-section class="text-weight-medium text-grey-8">{{ option.text }}</q-item-section>
-          </q-item>
-        </q-list>
-      </q-menu>
-    </template>
+<!--    <template v-slot:body-cell="props">-->
+<!--      <q-td :props="props">-->
+<!--        &lt;!&ndash; Aquí mostramos el valor de la celda si no es la columna de acciones &ndash;&gt;-->
+<!--        <template v-if="props.col.name !== 'actions'">-->
+<!--          {{ props.value }}-->
+<!--        </template>-->
+
+<!--        &lt;!&ndash; Si es la columna de 'actions', mostramos los botones de editar y eliminar &ndash;&gt;-->
+<!--        <template v-else>-->
+<!--          <slot name="body-cell-actions" :props="props"></slot>-->
+<!--        </template>-->
+<!--      </q-td>-->
+<!--    </template>-->
+
+<!--    <template v-slot:body-cell="props">-->
+<!--      <q-td :props="props">-->
+<!--        {{ props.value }}-->
+<!--      </q-td>-->
+<!--      <q-menu touch-position context-menu>-->
+<!--        <q-list dense style="width: 140px">-->
+<!--          <q-item-->
+<!--            v-for="option in contextMenu"-->
+<!--            :key="option.text"-->
+<!--            clickable-->
+<!--            v-close-popup-->
+<!--            @click="emitAction(option.func, props.row)"-->
+<!--          >-->
+<!--            <q-item-section side>-->
+<!--              <q-icon :name="option.icon" color="primary" size="xs" />-->
+<!--            </q-item-section>-->
+<!--            <q-item-section class="text-weight-medium text-grey-8">{{ option.text }}</q-item-section>-->
+<!--          </q-item>-->
+<!--        </q-list>-->
+<!--      </q-menu>-->
+<!--    </template>-->
   </q-table>
 </template>
 

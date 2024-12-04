@@ -3,35 +3,49 @@
     <div class="row align-items-center justify-between q-mb-md">
       <div class="text-h5 text-weight-bold text-grey-9">Tareas<span class="q-ml-sm text-weight-regular text-grey-5">{{ rows.length }}</span></div>
       <div style="display: flex; gap: 20px">
-        <q-select
-          hide-dropdown-icon
+        <q-input
           dense
           borderless
-          style="background-color: white; width: 160px; border: 1px solid #D1D5DB; border-radius: 6px"
-          v-model="modelSelect"
-          placeholder="seleccionar..."
-          :options="options"
+          placeholder="Buscar..."
+          outlined
+          class="bg-white text-grey-9"
+          style="width: 300px"
+          v-model="inputSearch"
         >
-          <template v-slot:selected-item="{ opt }">
-            <div class="q-pl-md truncate-text">{{ opt.label }}</div>
+          <template #prepend>
+            <q-icon name="search" />
           </template>
-          <template v-slot:append>
-            <q-icon class="q-pr-sm" name="expand_more" style="color: grey;" />
-          </template>
-          <template v-slot:option="scope">
-            <q-item v-bind="scope.itemProps" style="min-height: 36px">
-              <q-item-section>
-                <q-item-label>{{ scope.opt.label }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </template>
-        </q-select>
+        </q-input>
+<!--        <q-select-->
+<!--          hide-dropdown-icon-->
+<!--          dense-->
+<!--          borderless-->
+<!--          style="background-color: white; width: 160px; border: 1px solid #D1D5DB; border-radius: 6px"-->
+<!--          v-model="modelSelect"-->
+<!--          placeholder="seleccionar..."-->
+<!--          :options="options"-->
+<!--        >-->
+<!--          <template v-slot:selected-item="{ opt }">-->
+<!--            <div class="q-pl-md truncate-text">{{ opt.label }}</div>-->
+<!--          </template>-->
+<!--          <template v-slot:append>-->
+<!--            <q-icon class="q-pr-sm" name="expand_more" style="color: grey;" />-->
+<!--          </template>-->
+<!--          <template v-slot:option="scope">-->
+<!--            <q-item v-bind="scope.itemProps" style="min-height: 36px">-->
+<!--              <q-item-section>-->
+<!--                <q-item-label>{{ scope.opt.label }}</q-item-label>-->
+<!--              </q-item-section>-->
+<!--            </q-item>-->
+<!--          </template>-->
+<!--        </q-select>-->
         <Button
           :label="'Exportar'"
           :icon="'system_update_alt'"
           :color="'white'"
           :text-color="'black'"
           :style="'border: 1px solid #D1D5DB'"
+          @click="exportPdf"
         >
         </Button>
         <Button
@@ -44,12 +58,48 @@
         </Button>
       </div>
     </div>
-    <Table
-      :data="rows"
-      :header="columns"
-      :context-menu="contextMenu"
-      @action-context-menu="handleContextMenu"
-    />
+<!--    <Table-->
+<!--      :data="rows"-->
+<!--      :header="columns"-->
+<!--      :context-menu="contextMenu"-->
+<!--      @action-context-menu="handleContextMenu"-->
+<!--      :loading="loadingTable"-->
+<!--    />-->
+    <q-table
+      :rows="rows"
+      :columns="columns"
+      row-key="id"
+      flat
+      bordered
+      style="border-radius: 6px"
+      selection="multiple"
+    >
+      <template v-slot:body-cell-actions="props">
+        <q-td :props="props">
+          <q-btn
+            flat
+            size="sm"
+            round
+            icon="edit"
+            color="primary"
+            @click="edit(props.row)"
+            class="q-mr-sm"
+          >
+
+          </q-btn>
+          <q-btn
+            flat
+            size="sm"
+            round
+            icon="delete"
+            color="negative"
+            @click="remove(props.row.id)"
+          >
+
+          </q-btn>
+        </q-td>
+      </template>
+    </q-table>
     <q-dialog v-model="dialog" persistent>
       <q-card class="q-py-sm" style="width: 500px; max-width: 90vw; border-radius: 6px">
         <q-card-section class="q-px-lg q-py-sm flex-center row justify-between">
@@ -150,6 +200,9 @@ import InputDate from '../../../components/MyInputDate.vue'
 import { Tarea } from '../interface/Tarea'
 import { useAlert } from 'src/composables/useAlert';
 import useFetchHttp from '../../../composables/useFetchHttp';
+import { useDialogConfirm } from 'src/composables/useDialogConfirm';
+
+const { dialogConfirm } = useDialogConfirm();
 import { jwtDecode } from 'jwt-decode';
 
 const { alert } = useAlert();
@@ -175,8 +228,9 @@ const options = [
 
 const modelSelect = ref(null);
 
+const loadingTable = ref(false);
 
-const URL = 'http://localhost:8090/api/v1';
+// const URL = 'http://localhost:8090/api/v1';
 
 const rows = ref([]);
 const columns = ref([
@@ -202,26 +256,32 @@ const columns = ref([
     sortable: true,
   },
   {
-    field: 'fechaInicio',
-    name: 'fechaInicio',
-    label: 'Inicio',
-    align: 'left',
-    sortable: true,
-  },
-  {
-    field: 'fechaFin',
-    name: 'fechaFin',
-    label: 'Fin',
-    align: 'left',
-    sortable: true,
-  },
-  {
-    field: 'fechaLimite',
-    name: 'fechaLimite',
-    label: 'Deadline',
-    align: 'left',
-    sortable: true,
-  },
+    label: '...',
+    name: 'actions',
+    field: 'actions',
+    align: 'center',
+  }
+  // {
+  //   field: 'fechaInicio',
+  //   name: 'fechaInicio',
+  //   label: 'Inicio',
+  //   align: 'left',
+  //   sortable: true,
+  // },
+  // {
+  //   field: 'fechaFin',
+  //   name: 'fechaFin',
+  //   label: 'Fin',
+  //   align: 'left',
+  //   sortable: true,
+  // },
+  // {
+  //   field: 'fechaLimite',
+  //   name: 'fechaLimite',
+  //   label: 'Deadline',
+  //   align: 'left',
+  //   sortable: true,
+  // },
 ]);
 
 const dialog = ref(false);
@@ -261,38 +321,16 @@ const contextMenu = ref([
     type: 'remove'
   }
 ]);
-
-const handleContextMenu = async ({ action, row }) => {
-  switch (action) {
-    case 'update':
-      console.log('editar', row);
-      await edit(row);
-      break;
-    case 'delete':
-      console.log('eliminar', row);
-      break;
-  }
-};
 /****************************************************************************/
 /*                             API                                          */
 /****************************************************************************/
 const listTareas = async () => {
   try {
-    const token = localStorage.getItem('token'); // Recupera el token
-    if (!token) {
-      throw new Error("Token no encontrado en localStorage.");
-    }
+    loadingTable.value = true;
 
-    const decodedToken = jwtDecode(token);
-    const userSub = decodedToken.sub;
-
-    console.log(userSub)
-    console.log(token)
-
-    const response = await axios.get('http://localhost:8090/api/v1/tareas', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await fetchHttp({
+      method: 'GET',
+      endpoint: '/tareas'
     });
 
     rows.value = response.data.body;
@@ -302,6 +340,8 @@ const listTareas = async () => {
     } else {
       console.error("Error en la solicitud:", error.message);
     }
+  } finally {
+    loadingTable.value = false;
   }
 };
 
@@ -311,23 +351,29 @@ const save = async () => {
       id: tarea.value.id,
       titulo: tarea.value.titulo,
       descripcion: tarea.value.descripcion,
-      fechaInicio: '2024-11-10',
-      fechaFin: '2024-11-17',
-      fechaLimite: '2024-11-30'
+      // fechaInicio: '2024-11-10',
+      // fechaFin: '2024-11-17',
+      // fechaLimite: '2024-11-30'
     }
     let response: any;
 
     const token = localStorage.getItem('token');
 
     if(tarea.value.id == 0) {
-      response = await axios.post('http://localhost:8090/api/v1/tareas', data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
+      response = await fetchHttp({
+        method: 'POST',
+        endpoint: '/tareas',
+        data: data,
       });
     }
     else {
-      response = await axios.put(URL + '/tareas/' + tarea.value.id, data);
+      // response = await axios.put(URL + '/tareas/' + tarea.value.id, data);
+
+      response = await fetchHttp({
+        method: 'PUT',
+        endpoint: `/tareas/${tarea.value.id}`,
+        data: data,
+      });
     }
 
     if(response.data.ok) {
@@ -364,7 +410,14 @@ const validateSave = async () => {
 
 const edit = async (item: any) => {
   try {
-    const response = await axios.get(URL + '/tareas/' + item.id);
+    console.log(item);
+    // const response = await axios.get(URL + '/tareas/' + item.id);
+
+    const response = await fetchHttp({
+      method: 'GET',
+      endpoint: `/tareas/${item.id}`
+    });
+
     tarea.value = { ...response.data.body };
     openDialog();
   } catch (e: any) {
@@ -376,6 +429,57 @@ const edit = async (item: any) => {
     console.log('error: ', e);
   }
 };
+
+const remove = async (id: any) => {
+  try {
+    dialogConfirm({
+      type: 'success',
+      title: 'Deseas remover el registro?',
+      msg: 'Podras recuperarlos sin problema',
+      onOk: () => {
+        console.log(id);
+      },
+      onCancel: () => {
+        console.log('Cancelado: Acción detenida.');
+      },
+    });
+  } catch (e: any) {
+    alert({
+      type: 'error',
+      title: 'Algo salio mal!',
+      msg: e.response.data.message,
+    });
+    console.log('error: ', e);
+  }
+}
+
+const exportPdf = async () => {
+  try {
+    const response = await fetchHttp({
+      method: 'GET',
+      endpoint: '/tareas/report',
+      responseType: 'blob'
+    });
+
+    const blob = await response.blob();
+
+    // Crear una URL para el Blob
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+
+    // Definir el nombre del archivo PDF a descargar
+    link.download = 'reporte_tareas.pdf';
+
+    // Simular el clic para que se inicie la descarga
+    link.click();
+
+    // Liberar el objeto URL después de la descarga
+    URL.revokeObjectURL(link.href);
+
+  } catch (e: any) {
+    console.log(e);
+  }
+}
 /****************************************************************************/
 /*                             METHODS                                      */
 /****************************************************************************/
