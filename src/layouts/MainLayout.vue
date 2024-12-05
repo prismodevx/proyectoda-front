@@ -31,9 +31,9 @@
               class="text-weight-bold"
               style="font-size: 18px; color: #1d1d1d"
             >
-              {{ usuario }}
+              {{ nombres }}
             </q-item-label>
-            <q-item-label caption>alexis@gmail.com</q-item-label>
+            <q-item-label caption>{{ email }}</q-item-label>
           </q-item-section>
           <q-item-section
             style="margin: 0; padding: 0"
@@ -58,7 +58,7 @@
               </q-item>
               <q-separator />
               <q-item clickable @click="logout">
-                <q-item-section>Cerrar sesion</q-item-section>
+                <q-item-section class="text-negative">Cerrar sesion</q-item-section>
               </q-item>
             </q-list>
           </q-menu>
@@ -259,6 +259,8 @@ const isActive = (path: any) => {
 };
 
 const usuario = ref<string>('');
+const email = ref<string>('');
+const nombres = ref<string>('');
 
 onMounted(() => {
   restoreState();
@@ -266,6 +268,8 @@ onMounted(() => {
 
   const decoded: any = jwtDecode(token ?? '');
   usuario.value = decoded.sub;
+  email.value = decoded.email;
+  nombres.value = decoded.nombres;
 });
 
 </script>
