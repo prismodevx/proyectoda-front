@@ -17,6 +17,14 @@ const routes: RouteRecordRaw[] = [
         path: '/tareas/',
         component: () => import('pages/tareas/views/List.vue')
       },
+      {
+        path: '/categorias/',
+        component: () => import('pages/categorias/views/List.vue')
+      },
+      {
+        path: '/pomodoro/',
+        component: () => import('pages/pomodoro/views/Pomodoro.vue')
+      },
     ],
     meta: { requiresAuth: true },
   },

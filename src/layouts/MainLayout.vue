@@ -14,9 +14,14 @@
         <!--          @click="toggleLeftDrawer"-->
         <!--        />-->
 
-        <!--        <q-toolbar-title>-->
-        <!--          Todonary - App-->
-        <!--        </q-toolbar-title>-->
+        <q-toolbar-title class="text-grey-6 q-ml-lg cursor-pointer" @click="() => {
+          router.push('/pomodoro')
+        }">
+          <q-tooltip class="bg-indigo" :offset="[-300, 10]">
+            Ir al pomodoro
+          </q-tooltip>
+          {{ formattedTime }}
+        </q-toolbar-title>
         <q-item clickable v-ripple>
           <q-item-section avatar>
             <q-avatar color="grey" text-color="white" icon="person" />
@@ -25,8 +30,9 @@
             <q-item-label
               class="text-weight-bold"
               style="font-size: 18px; color: #1d1d1d"
-              >Alexis</q-item-label
             >
+              {{ usuario }}
+            </q-item-label>
             <q-item-label caption>alexis@gmail.com</q-item-label>
           </q-item-section>
           <q-item-section
@@ -96,6 +102,7 @@
             clickable
             v-ripple
             :to="'/dashboard'"
+            :class="{ 'active-item': isActive('/dashboard') }"
           >
             <q-item-section avatar>
               <q-avatar text-color="grey" icon="apps" />
@@ -112,6 +119,7 @@
             clickable
             v-ripple
             :to="'/tareas'"
+            :class="{ 'active-item': isActive('/tareas') }"
           >
             <q-item-section avatar>
               <q-avatar text-color="grey" icon="check_box" />
@@ -128,6 +136,7 @@
             clickable
             v-ripple
             :to="'/categorias'"
+            :class="{ 'active-item': isActive('/categorias') }"
           >
             <q-item-section avatar>
               <q-avatar text-color="grey" icon="bookmark" />
@@ -135,6 +144,23 @@
             <q-item-section>
               <q-item-label class="text-weight-medium" style="color: #575757"
                 >Categorias</q-item-label
+              >
+            </q-item-section>
+          </q-item>
+          <q-item
+            class="q-pa-none"
+            style="border-radius: 6px"
+            clickable
+            v-ripple
+            :to="'/pomodoro'"
+            :class="{ 'active-item': isActive('/pomodoro') }"
+          >
+            <q-item-section avatar>
+              <q-avatar text-color="grey" icon="timer" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-weight-medium" style="color: #575757"
+              >Pomodoro</q-item-label
               >
             </q-item-section>
           </q-item>
@@ -159,23 +185,7 @@
             </q-item-section>
           </q-item>
           <q-item
-            class="q-pa-none"
-            style="border-radius: 6px"
-            clickable
-            v-ripple
-            :to="'/tareas'"
-          >
-            <q-item-section avatar>
-              <q-avatar text-color="grey" icon="help" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-weight-medium" style="color: #575757"
-                >Ayuda</q-item-label
-              >
-            </q-item-section>
-          </q-item>
-          <q-item
-            class="q-pa-none"
+            class="q-pa-none q-mb-md"
             style="border-radius: 6px"
             clickable
             v-ripple
@@ -205,10 +215,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useDialogConfirm } from 'src/composables/useDialogConfirm';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { jwtDecode } from 'jwt-decode';
 
 const { dialogConfirm } = useDialogConfirm();
 const router = useRouter();
+const route = useRoute();
 
 const leftDrawerOpen = ref(false);
 
@@ -229,4 +241,39 @@ const logout = async () => {
     console.log(e);
   }
 };
+import { computed, onMounted } from 'vue';
+import { usePomodoroStore } from 'stores/pomodoroStore';
+
+const store = usePomodoroStore();
+
+const formattedTime = computed(() => {
+  const minutes = Math.floor(store.remainingTime / 60);
+  const seconds = store.remainingTime % 60;
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+});
+
+const { startTimer, pauseTimer, stopTimer, restoreState } = store;
+
+const isActive = (path: any) => {
+  return route.path === path;
+};
+
+const usuario = ref<string>('');
+
+onMounted(() => {
+  restoreState();
+  const token = localStorage.getItem('token');
+
+  const decoded: any = jwtDecode(token ?? '');
+  usuario.value = decoded.sub;
+});
+
 </script>
+<style>
+.active-item {
+  background-color: #ededed; /* Azul claro */
+  border-radius: 6px;
+  color: #bdbdbd; /* Verde oscuro */
+  font-weight: bold;
+}
+</style>

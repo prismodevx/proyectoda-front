@@ -5,4 +5,6 @@ export interface Tarea {
   fechaInicio: string;
   fechaFin: string;
   fechaLimite: string;
+
+  objCategoria: any | null;
 }

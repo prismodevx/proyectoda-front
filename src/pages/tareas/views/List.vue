@@ -65,7 +65,7 @@
 <!--      :loading="loadingTable"-->
 <!--    />-->
     <q-table
-      :rows="rows"
+      :rows="rowsFilteredComputed"
       :columns="columns"
       row-key="id"
       flat
@@ -143,27 +143,60 @@
                   type="textarea"
                 />
               </div>
-              <div class="col-6">
-                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Fecha Inicio</div>
-                <InputDate
-                  v-model="tarea.fechaInicio"
-                  placeholder="dd/MM/aaaa"
-                />
-              </div>
-              <div class="col-6">
-                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Fecha Fin</div>
-                <InputDate
-                  v-model="tarea.fechaFin"
-                  placeholder="dd/MM/aaaa"
-                />
-              </div>
               <div class="col-12">
-                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Deadline</div>
-                <InputDate
-                  v-model="tarea.fechaLimite"
-                  placeholder="dd/MM/aaaa"
-                />
+                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Categoria</div>
+<!--                <q-input-->
+<!--                  placeholder="Escribe una descripcion..."-->
+<!--                  outlined-->
+<!--                  v-model="tarea.descripcion"-->
+<!--                  dense-->
+<!--                  type="textarea"-->
+<!--                />-->
+                <q-select
+                  hide-dropdown-icon
+                  dense
+                  borderless
+                  style="background-color: white; border: 1px solid #D1D5DB; border-radius: 6px"
+                  v-model="tarea.objCategoria"
+                  placeholder="seleccionar..."
+                  :options="optionsAllCategoria"
+                >
+                  <template v-slot:selected-item="{ opt }">
+                    <div class="q-pl-md truncate-text">{{ opt.label }}</div>
+                  </template>
+                  <template v-slot:append>
+                    <q-icon class="q-pr-sm" name="expand_more" style="color: grey;" />
+                  </template>
+                  <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps" style="min-height: 36px">
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.label }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
               </div>
+<!--              <div class="col-6">-->
+<!--                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Fecha Inicio</div>-->
+<!--                <InputDate-->
+<!--                  v-model="tarea.fechaInicio"-->
+<!--                  placeholder="dd/MM/aaaa"-->
+<!--                />-->
+<!--              </div>-->
+<!--              <div class="col-6">-->
+<!--                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Fecha Fin</div>-->
+<!--                <InputDate-->
+<!--                  v-model="tarea.fechaFin"-->
+<!--                  placeholder="dd/MM/aaaa"-->
+<!--                />-->
+<!--              </div>-->
+<!--              <div class="col-12">-->
+<!--                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Deadline</div>-->
+<!--                <InputDate-->
+<!--                  v-model="tarea.fechaLimite"-->
+<!--                  placeholder="dd/MM/aaaa"-->
+<!--                />-->
+<!--              </div>-->
             </div>
           </q-form>
         </q-card-section>
@@ -191,7 +224,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import axios from 'axios'
 import Table from '../../../components/MyTable.vue'
 import Button from '../../../components/MyButton.vue'
@@ -210,26 +243,7 @@ const { fetchHttp } = useFetchHttp();
 /****************************************************************************/
 /*                              DATA                                        */
 /****************************************************************************/
-const options = [
-  {
-    value: 1,
-    label: 'Categoriadawdawd'
-  },
-  {
-    value: 2,
-    label: 'Categoria 2'
-  },
-  {
-    value: 3,
-    label: 'Categoria 3'
-  }
-];
-
-const modelSelect = ref(null);
-
 const loadingTable = ref(false);
-
-// const URL = 'http://localhost:8090/api/v1';
 
 const rows = ref([]);
 const columns = ref([
@@ -251,6 +265,13 @@ const columns = ref([
     field: 'descripcion',
     name: 'descripcion',
     label: 'Descripcion',
+    align: 'left',
+    sortable: true,
+  },
+  {
+    field: 'categoriaNombre',
+    name: 'categoriaNombre',
+    label: 'Categoria',
     align: 'left',
     sortable: true,
   },
@@ -283,6 +304,26 @@ const columns = ref([
   // },
 ]);
 
+const inputSearch = ref<string>('');
+
+const rowsFilteredComputed = computed(() => {
+  const search = inputSearch.value.trim().toLowerCase();
+
+  if (search == '') {
+    return rows.value;
+  }
+
+  return rows.value.filter((row) => {
+    return ['titulo', 'descripcion', 'categoriaNombre'].some((key) => {
+      const value: any = row[key];
+      return value && value.toString().toLowerCase().includes(search);
+    });
+  });
+});
+
+// combos
+const optionsAllCategoria = ref<Array<any>>([]);
+
 const dialog = ref(false);
 const refForm = ref(null);
 
@@ -293,6 +334,7 @@ const tarea = ref<Tarea>({
   fechaInicio: '',
   fechaFin: '',
   fechaLimite: '',
+  objCategoria: null,
 });
 
 const cleanForm = () => {
@@ -303,26 +345,32 @@ const cleanForm = () => {
     fechaInicio: '',
     fechaFin: '',
     fechaLimite: '',
+    objCategoria: null,
   };
 };
-
-const contextMenu = ref([
-  {
-    text: 'Editar',
-    icon: 'edit',
-    func: 'update',
-    type: 'normal'
-  },
-  {
-    text: 'Eliminar',
-    icon: 'delete',
-    func: 'delete',
-    type: 'remove'
-  }
-]);
 /****************************************************************************/
 /*                             API                                          */
 /****************************************************************************/
+const listComboCategorias = async () => {
+  try {
+    loadingTable.value = true;
+
+    const response = await fetchHttp({
+      method: 'GET',
+      endpoint: '/categorias'
+    });
+
+    optionsAllCategoria.value = response.data.body.map((e: any) => ({
+      value: e.id,
+      label: e.nombre,
+    }))
+  } catch (e: any) {
+    console.error(e);
+  } finally {
+    loadingTable.value = false;
+  }
+};
+
 const listTareas = async () => {
   try {
     loadingTable.value = true;
@@ -350,6 +398,7 @@ const save = async () => {
       id: tarea.value.id,
       titulo: tarea.value.titulo,
       descripcion: tarea.value.descripcion,
+      categoriaId: tarea.value.objCategoria.value,
       // fechaInicio: '2024-11-10',
       // fechaFin: '2024-11-17',
       // fechaLimite: '2024-11-30'
@@ -417,7 +466,14 @@ const edit = async (item: any) => {
       endpoint: `/tareas/${item.id}`
     });
 
-    tarea.value = { ...response.data.body };
+    tarea.value.id = response.data.body.id;
+    tarea.value.titulo = response.data.body.titulo;
+    tarea.value.descripcion = response.data.body.descripcion;
+    tarea.value.objCategoria = {
+      value: response.data.body.categoriaId,
+      label: response.data.body.categoriaNombre,
+    };
+
     openDialog();
   } catch (e: any) {
     alert({
@@ -444,7 +500,7 @@ const remove = async (id: any) => {
         alert({
           type: 'success',
           title: 'Listo!',
-          msg: `El registro se ha removido satisfactoriamente`
+          msg: 'El registro se ha removido satisfactoriamente'
         });
         listTareas();
       },
@@ -513,6 +569,7 @@ const closeDialog = () => {
 /*                           LIFECYCLE                                      */
 /****************************************************************************/
 onMounted( () => {
+  listComboCategorias();
   listTareas();
 });
 

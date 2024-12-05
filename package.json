@@ -2,7 +2,7 @@
   "name": "proyecto-da",
   "version": "0.0.1",
   "description": "Para desarrollo de aplicaciones",
-  "productName": "Todory App",
+  "productName": "Notionary App",
   "author": "Htec AlexisM <ansonybrine95@gmail.com>",
   "private": true,
   "scripts": {
