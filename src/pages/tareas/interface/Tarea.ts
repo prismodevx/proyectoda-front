@@ -7,4 +7,5 @@ export interface Tarea {
   fechaLimite: string;
 
   objCategoria: any | null;
+  objEstado: any | null;
 }

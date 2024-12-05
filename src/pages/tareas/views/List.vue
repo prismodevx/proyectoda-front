@@ -71,8 +71,12 @@
       flat
       bordered
       style="border-radius: 6px"
-      selection="multiple"
     >
+      <template v-slot:body-cell-id="props">
+        <q-td :props="props">
+          {{ props.key }}
+        </q-td>
+      </template>
       <template v-slot:body-cell-actions="props">
         <q-td :props="props">
           <q-btn
@@ -96,6 +100,13 @@
           >
 
           </q-btn>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-estado="props">
+        <q-td :props="props">
+          <q-badge :style="'height: 22px; background-color: ' + getColor(props.row.estado)">
+            <span class="q-pa-xs">{{ getEstado(props.row.estado) }}</span>
+          </q-badge>
         </q-td>
       </template>
     </q-table>
@@ -143,29 +154,50 @@
                   type="textarea"
                 />
               </div>
-              <div class="col-12">
+              <div class="col-6">
                 <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Categoria</div>
-<!--                <q-input-->
-<!--                  placeholder="Escribe una descripcion..."-->
-<!--                  outlined-->
-<!--                  v-model="tarea.descripcion"-->
-<!--                  dense-->
-<!--                  type="textarea"-->
-<!--                />-->
                 <q-select
-                  hide-dropdown-icon
+
                   dense
                   borderless
-                  style="background-color: white; border: 1px solid #D1D5DB; border-radius: 6px"
+                  outlined
                   v-model="tarea.objCategoria"
                   placeholder="seleccionar..."
                   :options="optionsAllCategoria"
+                  :rules="[
+                    (v) => {
+                      return !!v || 'El campo es obligatorio'
+                    }
+                  ]"
                 >
                   <template v-slot:selected-item="{ opt }">
                     <div class="q-pl-md truncate-text">{{ opt.label }}</div>
                   </template>
-                  <template v-slot:append>
-                    <q-icon class="q-pr-sm" name="expand_more" style="color: grey;" />
+                  <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps" style="min-height: 36px">
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.label }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+              </div>
+              <div class="col-6">
+                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Categoria</div>
+                <q-select
+                  dense
+                  borderless
+                  outlined
+                  v-model="tarea.objEstado"
+                  :options="optionsAllEstado"
+                  :rules="[
+                    (v) => {
+                      return !!v || 'El campo es obligatorio'
+                    }
+                  ]"
+                >
+                  <template v-slot:selected-item="{ opt }">
+                    <div class="q-pl-md truncate-text">{{ opt.label }}</div>
                   </template>
                   <template v-slot:option="scope">
                     <q-item v-bind="scope.itemProps" style="min-height: 36px">
@@ -276,6 +308,13 @@ const columns = ref([
     sortable: true,
   },
   {
+    field: 'estado',
+    name: 'estado',
+    label: 'Estado',
+    align: 'left',
+    sortable: true,
+  },
+  {
     label: '...',
     name: 'actions',
     field: 'actions',
@@ -304,6 +343,7 @@ const columns = ref([
   // },
 ]);
 
+
 const inputSearch = ref<string>('');
 
 const rowsFilteredComputed = computed(() => {
@@ -323,6 +363,11 @@ const rowsFilteredComputed = computed(() => {
 
 // combos
 const optionsAllCategoria = ref<Array<any>>([]);
+const optionsAllEstado = ref<Array<any>>([
+  { value: 'P', label: 'Pendiente', color: '#a3a3a3' },
+  { value: 'E', label: 'En Proceso', color: '#2f66ad' },
+  { value: 'C', label: 'Completada', color: '#2aaf4d' },
+]);
 
 const dialog = ref(false);
 const refForm = ref(null);
@@ -335,6 +380,7 @@ const tarea = ref<Tarea>({
   fechaFin: '',
   fechaLimite: '',
   objCategoria: null,
+  objEstado: null,
 });
 
 const cleanForm = () => {
@@ -346,6 +392,7 @@ const cleanForm = () => {
     fechaFin: '',
     fechaLimite: '',
     objCategoria: null,
+    objEstado: null,
   };
 };
 /****************************************************************************/
@@ -399,6 +446,7 @@ const save = async () => {
       titulo: tarea.value.titulo,
       descripcion: tarea.value.descripcion,
       categoriaId: tarea.value.objCategoria.value,
+      estado: tarea.value.objEstado.value,
       // fechaInicio: '2024-11-10',
       // fechaFin: '2024-11-17',
       // fechaLimite: '2024-11-30'
@@ -473,6 +521,8 @@ const edit = async (item: any) => {
       value: response.data.body.categoriaId,
       label: response.data.body.categoriaNombre,
     };
+    tarea.value.objEstado = optionsAllEstado.value
+      .find((e: any) => e.value == response.data.body.estado)
 
     openDialog();
   } catch (e: any) {
@@ -564,7 +614,13 @@ const closeDialog = () => {
   cleanForm();
 };
 
+const getEstado = (estado: any) => {
+  return optionsAllEstado.value.find((e: any) => e.value == estado).label;
+};
 
+const getColor = (estado: any) => {
+  return optionsAllEstado.value.find((e: any) => e.value == estado).color;
+}
 /****************************************************************************/
 /*                           LIFECYCLE                                      */
 /****************************************************************************/
