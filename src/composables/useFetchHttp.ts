@@ -10,11 +10,7 @@ export default function useFetchHttp() {
   const { dialogConfirm } = useDialogConfirm();
 
   const fetchHttp = async (resource: any) => {
-    // const method = resource.method;
-    // const data = resource.data;
-    // const endpoint = resource.endpoint;
-
-    const { method, data, endpoint, pathVariable, responseType } = resource;
+    const { method, data, endpoint, pathVariable, responseType, accept } = resource;
 
     try {
       let apiResource = BACKEND_URL.concat(endpoint);
@@ -25,43 +21,51 @@ export default function useFetchHttp() {
       const usuario = decoded.sub;
       const usuarioId = decoded.id;
 
-      console.log(usuarioId);
-
       switch (method) {
         case 'GET':
-          return await axios.get(apiResource, {
+          // Asegúrate de manejar el responseType correctamente para la descarga de archivo
+          const response = await axios.get(apiResource, {
             params: { ...data, usuario: usuario, usuarioId: usuarioId },
             headers: {
-              Authorization: `Bearer ${token}`
+              Authorization: `Bearer ${token}`,
+              Accept: accept,
             },
-            responseType: responseType
+            responseType: responseType // Asegúrate de que 'responseType' sea 'blob' cuando sea un archivo
           });
+          return response;
+
         case 'POST':
           return await axios.post(apiResource, { ...data, usuario: usuario, usuarioId: usuarioId }, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
+
         case 'PUT':
           apiResource = pathVariable ? apiResource + '/' + usuarioId : apiResource;
           return await axios.put(apiResource, { ...data, usuario: usuario, usuarioId: usuarioId }, {
             headers: {
               Authorization: `Bearer ${token}`
             }
-          })
+          });
+        case 'DELETE':
+          return await axios.delete(apiResource, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+
         default:
           throw new Error(`Método HTTP ${method} no soportado`);
       }
     } catch (e: any) {
       console.log('error: ', e);
-
       if (e.response && e.response.status === 401) {
-        // Si el código de estado es 401, redirige al login
-        localStorage.removeItem('token'); // Elimina el token del almacenamiento local
+        localStorage.removeItem('token');
         dialogConfirm({
           type: 'error',
           title: 'El token ha expirado',
-          msg: 'Vuelve a iniciar sesion',
+          msg: 'Vuelve a iniciar sesión',
           onOk: () => {
             router.push('/login');
           },
@@ -69,11 +73,10 @@ export default function useFetchHttp() {
             router.push('/login');
           },
         });
-
       }
-
       throw e;
     }
   }
+
   return { fetchHttp };
 }

@@ -7,9 +7,8 @@
           dense
           borderless
           placeholder="Buscar..."
-          outlined
           class="bg-white text-grey-9"
-          style="width: 300px"
+          style="width: 300px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; padding: 0 10px"
           v-model="inputSearch"
         >
           <template #prepend>
@@ -436,8 +435,18 @@ const remove = async (id: any) => {
       type: 'success',
       title: 'Deseas remover el registro?',
       msg: 'Podras recuperarlos sin problema',
-      onOk: () => {
-        console.log(id);
+      onOk: async () => {
+        const response = await fetchHttp({
+          method: 'DELETE',
+          endpoint: `/tareas/${id}`
+        });
+
+        alert({
+          type: 'success',
+          title: 'Listo!',
+          msg: `El registro se ha removido satisfactoriamente`
+        });
+        listTareas();
       },
       onCancel: () => {
         console.log('Cancelado: Acción detenida.');
@@ -458,28 +467,35 @@ const exportPdf = async () => {
     const response = await fetchHttp({
       method: 'GET',
       endpoint: '/tareas/report',
-      responseType: 'blob'
+      responseType: 'blob',
+      accept: 'application/pdf'
     });
 
-    const blob = await response.blob();
+    // Verificar que la respuesta es del tipo 'application/pdf'
+    const contentType = response.headers['content-type'];
+    if (!contentType || !contentType.includes('application/pdf')) {
+      throw new Error('El archivo recibido no es un PDF');
+    }
 
-    // Crear una URL para el Blob
+    // Crear un objeto URL para el Blob
+    const blob = response.data;
+
+    // Crear un enlace para la descarga del PDF
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
 
-    // Definir el nombre del archivo PDF a descargar
+    // Definir el nombre del archivo a descargar
     link.download = 'reporte_tareas.pdf';
 
-    // Simular el clic para que se inicie la descarga
+    // Simular un clic en el enlace para iniciar la descarga
     link.click();
 
-    // Liberar el objeto URL después de la descarga
+    // Liberar el objeto URL para evitar pérdidas de memoria
     URL.revokeObjectURL(link.href);
-
-  } catch (e: any) {
-    console.log(e);
+  } catch (e) {
+    console.error('Error al exportar PDF:', e);
   }
-}
+};
 /****************************************************************************/
 /*                             METHODS                                      */
 /****************************************************************************/

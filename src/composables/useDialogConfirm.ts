@@ -18,8 +18,8 @@ export function useDialogConfirm() {
         onCancel,
       },
       persistent: true,
-    }).onOk(() => {
-      if (onOk) onOk();
+    }).onOk(async () => {
+      if (onOk) await onOk();
     }).onCancel(() => {
       if (onCancel) onCancel();
     }).onDismiss(() => {
