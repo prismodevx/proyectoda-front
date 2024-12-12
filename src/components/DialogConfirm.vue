@@ -25,7 +25,7 @@
           style="border: 2px solid red; width: 100px"
         />
         <Button
-          :label="'Salir'"
+          :label="'Si'"
           :color="type === 'success' ? 'primary' : 'negative'"
           :text-color="'white'"
           @click="handleOkClick"

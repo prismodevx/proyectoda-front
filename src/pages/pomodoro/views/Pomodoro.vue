@@ -1,6 +1,10 @@
 <template>
   <div class="q-pa-md flex flex-center column">
-    <q-card flat class="bg-white q-mt-md" style="border: 1px solid #d1d5db; border-radius: 6px; width: 300px;">
+    <q-card
+      flat
+      class="bg-white q-mt-md"
+      style="border: 1px solid #d1d5db; border-radius: 6px; width: 300px;"
+    >
       <!-- Encabezado -->
       <q-card-section class="bg-primary text-white text-center q-pa-sm">
         <div class="text-h5">Pomodoro Timer</div>
@@ -9,7 +13,9 @@
       <!-- Temporizador -->
       <q-card-section class="q-pa-md flex flex-center column">
         <div class="text-h1 text-weight-regular text-grey-9">{{ formattedTime }}</div>
-        <div class="text-caption text-grey q-mt-xs" style="font-size: 16px">Tiempo restante</div>
+        <div class="text-caption text-grey q-mt-xs" style="font-size: 16px">
+          Tiempo restante
+        </div>
       </q-card-section>
 
       <!-- Acciones -->
@@ -64,7 +70,11 @@ const formattedTime = computed(() => {
 
 const { startTimer, pauseTimer, stopTimer, restoreState } = store;
 
+// Solicita permisos para notificaciones al cargar el componente
 onMounted(() => {
   restoreState();
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
 });
 </script>

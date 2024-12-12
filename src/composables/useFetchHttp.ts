@@ -23,14 +23,13 @@ export default function useFetchHttp() {
 
       switch (method) {
         case 'GET':
-          // Asegúrate de manejar el responseType correctamente para la descarga de archivo
           const response = await axios.get(apiResource, {
             params: { ...data, usuario: usuario, usuarioId: usuarioId },
             headers: {
               Authorization: `Bearer ${token}`,
               Accept: accept,
             },
-            responseType: responseType // Asegúrate de que 'responseType' sea 'blob' cuando sea un archivo
+            responseType: responseType
           });
           return response;
 

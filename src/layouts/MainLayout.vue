@@ -173,7 +173,7 @@
             style="border-radius: 6px"
             clickable
             v-ripple
-            :to="'/dashboard'"
+            :to="'/'"
           >
             <q-item-section avatar>
               <q-avatar text-color="grey" icon="settings" />
@@ -189,7 +189,7 @@
             style="border-radius: 6px"
             clickable
             v-ripple
-            :to="'/categorias'"
+            :to="'/acerca-de'"
           >
             <q-item-section avatar>
               <q-avatar text-color="grey" icon="info" />

@@ -1,9 +1,7 @@
 <template>
   <q-page>
-    <!-- Título del Dashboard -->
     <div class="q-mb-md text-h4 text-weight-bold">Dashboard de Tareas</div>
 
-    <!-- Resumen de Tareas -->
     <div class="row col-12 q-mb-lg q-col-gutter-lg">
       <div class="col-3">
         <q-card flat bordered class="card-summary">
@@ -39,7 +37,6 @@
       </div>
     </div>
 
-    <!-- Sección de gráficos y tareas recientes -->
     <div class="row col-12">
       <q-card flat bordered class="col-4 q-mb-md">
         <q-card-section>
@@ -88,13 +85,10 @@ import { Chart, registerables } from 'chart.js';
 
 const { fetchHttp } = useFetchHttp();
 
-// Registrar componentes de Chart.js
 Chart.register(...registerables);
 
-// Datos dinámicos
 const tareas = ref([]);
 
-// Cálculos derivados de las tareas
 const tareasTotales = computed(() => tareas.value.length);
 const tareasCompletadas = computed(() =>
   tareas.value.filter((t) => t.estado === 'C').length
@@ -109,7 +103,6 @@ const tareasRecientes = computed(() =>
   tareas.value.slice(0, 3)
 );
 
-// Procesar datos para el gráfico de categorías
 const categoriasData = computed(() => {
   const counts = tareas.value.reduce((acc, tarea) => {
     acc[tarea.categoriaNombre] = (acc[tarea.categoriaNombre] || 0) + 1;
@@ -121,7 +114,6 @@ const categoriasData = computed(() => {
   };
 });
 
-// Datos para el gráfico de estados
 const estadosData = computed(() => {
   return {
     labels: ['Completadas', 'En Proceso', 'Pendientes'],
@@ -133,7 +125,6 @@ const estadosData = computed(() => {
   };
 });
 
-// Función para listar tareas desde el backend
 const listTareas = async () => {
   try {
     const response = await fetchHttp({
@@ -146,7 +137,6 @@ const listTareas = async () => {
   }
 };
 
-// Configurar gráfico de categorías
 const setupCategoriasChart = () => {
   const ctx = document.getElementById('categoriasChart').getContext('2d');
 
@@ -175,7 +165,6 @@ const setupCategoriasChart = () => {
   }
 };
 
-// Configurar gráfico de estados
 const setupEstadosChart = () => {
   const ctx = document.getElementById('estadoChart').getContext('2d');
 
@@ -202,7 +191,6 @@ const setupEstadosChart = () => {
   });
 };
 
-// Inicializar datos y gráficos al montar el componente
 onMounted(async () => {
   await listTareas();
   setupCategoriasChart();

@@ -25,6 +25,10 @@ const routes: RouteRecordRaw[] = [
         path: '/pomodoro/',
         component: () => import('pages/pomodoro/views/Pomodoro.vue')
       },
+      {
+        path: '/acerca-de/',
+        component: () => import('pages/acerca-de/views/AcercaDe.vue')
+      },
     ],
     meta: { requiresAuth: true },
   },

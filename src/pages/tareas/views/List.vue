@@ -183,7 +183,7 @@
                 </q-select>
               </div>
               <div class="col-6">
-                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Categoria</div>
+                <div class="text-grey-7 text-weight-bold q-mb-xs" style="font-size: 13px">Estado</div>
                 <q-select
                   dense
                   borderless
@@ -538,9 +538,9 @@ const edit = async (item: any) => {
 const remove = async (id: any) => {
   try {
     dialogConfirm({
-      type: 'success',
+      type: 'error',
       title: 'Deseas remover el registro?',
-      msg: 'Podras recuperarlos sin problema',
+      msg: 'No volveras a recuperarlos',
       onOk: async () => {
         const response = await fetchHttp({
           method: 'DELETE',

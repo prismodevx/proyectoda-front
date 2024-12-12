@@ -1,5 +1,5 @@
 <template>
-  <div class="row flex flex-center bg-primary text-white" style="height: 100vh">
+  <div class="row flex flex-center text-white" style="height: 100vh; background-color: #243345FF">
     <q-card flat class="rounded-card shadow-2" style="width: 360px; padding: 0px; border-radius: 6px;">
       <q-card-section>
         <div class="text-h4 text-weight-bold text-center q-pt-md text-grey-9">Notionary ;)</div>
@@ -266,6 +266,7 @@ const register = async () => {
 
 onMounted(() => {
   localStorage.removeItem('token');
+  localStorage.removeItem('pomodoroTime');
 })
 </script>
 
